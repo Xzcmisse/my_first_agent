@@ -26,7 +26,7 @@ print(model)  ##打印模型结构
 print("参量数",sum(p.numel() for p in model.parameters()))  ##打印模型参数总数
 
 ##  --损失函数--
-loss_fn=nn.CrossEntropyLoss()  ##定义交叉熵损失函数
+loss_fn=nn.CrossEntropyLoss()  ##定义交叉熵损失函数  "它是裁判，给这一批的预测打一个'错得多离谱'的分。"
 
 ##  --优化器--
 optimizer=torch.optim.Adam(model.parameters(),lr=1e-3)  ##定义 Adam 优化器，学习率为 0.001
@@ -38,11 +38,13 @@ for epoch in range(3):  ##训练3个周期
     total_loss, seen = 0.0, 0  ##初始化总损失和已处理样本数
     for X,y in train_loader:  ##遍历训练数据加载器 
         X,y=X.to(device),y.to(device)  ##将输入数据和标签移动到设备上,搬上 GPU（框架价值②）
-        y_pred=model(X)  ##前向传播，计算预测值
-        loss=loss_fn(y_pred,y)  ##计算损失
-        optimizer.zero_grad()  ##清零梯度
-        loss.backward()  ##反向传播，计算梯度
-        optimizer.step()  ##更新参数
+        y_pred=model(X)  ##前向传播，计算预测值 学生做例题，先答一版
+        loss=loss_fn(y_pred,y)  ##计算损失 尺子/裁判：比一比，扣几分
+        optimizer.zero_grad()  ##清零梯度  
+        ## PyTorch 把梯度存在每个参数的 .grad 里，默认是累加的（+=）。每开一批新的，必须先把上一批的旧账清零 类比：每算一批换一张白纸；不换就是在旧账本上继续往下加。
+
+        loss.backward()  ##反向传播，计算梯度  从 loss 出发往回倒推，算出每个 w 和 b "该往哪个方向调、调多少"。这就是昨天说的"老师批改指错在哪"。
+        optimizer.step()  ##更新参数 它是尺子：拿模型的 10 个分数，和正确答案比一比，算出一个数——错得有多离谱 学生照着批改写笔记：参数真的动了
 
         total_loss += loss.item() * y.size(0)  # .item() 把张量变普通数字
         seen += y.size(0)  # 统计样本数

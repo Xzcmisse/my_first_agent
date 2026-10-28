@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "knowledge_source": "knowledge/rag_knowledge.md",
+  "description": "RAG 知识库检索与问答评测集。问题尽量使用改写问法，避免与知识库原句完全相同。",
+  "questions": [
+    {
+      "id": "Q01",
+      "question": "RAG 的基本工作方式是什么？",
+      "expected_sections": ["1. RAG 是什么"],
+      "reference_answer": "先从外部知识库检索与问题相关的资料，再把资料和问题一起交给大模型生成答案。",
+      "must_contain": ["检索", "生成"],
+      "type": "基础概念"
+    },
+    {
+      "id": "Q02",
+      "question": "RAG 和微调在知识存放位置上有什么区别？",
+      "expected_sections": ["1. RAG 是什么"],
+      "reference_answer": "RAG 的知识主要放在外部知识库和索引中，模型参数不变；微调把知识写入模型参数，更新知识通常需要重新训练。",
+      "must_contain": ["外部", "参数"],
+      "type": "对比辨析"
+    },
+    {
+      "id": "Q03",
+      "question": "用户提问之前，系统一般要做哪些建库步骤？",
+      "expected_sections": ["2. 离线建库与在线查询"],
+      "reference_answer": "读取文档、清洗文本、切块、向量化并建立索引。",
+      "must_contain": ["切块", "向量化", "索引"],
+      "type": "流程"
+    },
+    {
+      "id": "Q04",
+      "question": "用户真正提问时，在线阶段会经过哪些环节？",
+      "expected_sections": ["2. 离线建库与在线查询"],
+      "reference_answer": "把问题向量化、检索 top-k、取回原文、拼接提示词，然后调用生成模型。",
+      "must_contain": ["问题向量化", "top-k", "原文"],
+      "type": "流程"
+    },
+    {
+      "id": "Q05",
+      "question": "为什么不能每次提问都把全部资料重新编码一遍？",
+      "expected_sections": ["2. 离线建库与在线查询"],
+      "reference_answer": "全部重新编码会重复消耗大量计算和时间；建库一次、查询时只编码问题可以降低延迟和成本。",
+      "must_contain": ["延迟", "成本"],
+      "type": "原因分析"
+    },
+    {
+      "id": "Q06",
+      "question": "向量索引和原文元数据为什么必须配套保存？",
+      "expected_sections": ["2. 离线建库与在线查询", "5. FAISS 与索引"],
+      "reference_answer": "索引返回的是向量编号，元数据才能把编号还原成原文和来源；缺少任何一边都无法完成完整检索。",
+      "must_contain": ["编号", "原文", "来源"],
+      "type": "跨节理解"
+    },
+    {
+      "id": "Q07",
+      "question": "为什么不能把整篇长文档直接做成一个向量块？",
+      "expected_sections": ["3. 文档切块 Chunking"],
+      "reference_answer": "整篇文档包含多个主题，合并成一个向量会平均掉不同主题的语义，导致检索信号变弱。",
+      "must_contain": ["多个主题", "平均", "语义"],
+      "type": "原因分析"
+    },
+    {
+      "id": "Q08",
+      "question": "切块时 max_len、overlap 和 min_len 分别解决什么问题？",
+      "expected_sections": ["3. 文档切块 Chunking"],
+      "reference_answer": "max_len 限制块的最大长度，overlap 保留相邻块的重叠上下文，min_len 过滤过短且无信息量的碎片。",
+      "must_contain": ["最大长度", "重叠", "最小"],
+      "type": "概念解释"
+    },
+    {
+      "id": "Q09",
+      "question": "在块前面拼章节标题有什么收益，又可能带来什么副作用？",
+      "expected_sections": ["3. 文档切块 Chunking"],
+      "reference_answer": "标题能补充主题上下文，但同一小节的大量块共享相同前缀，可能互相抢占排名并增加噪声。",
+      "must_contain": ["上下文", "抢占", "排名"],
+      "type": "利弊分析"
+    },
+    {
+      "id": "Q10",
+      "question": "embedding 把一段文字变成了什么？512 代表什么？",
+      "expected_sections": ["4. Embedding 与相似度"],
+      "reference_answer": "embedding 把文字映射成一组语义数字向量；512 表示这个向量有 512 个维度。",
+      "must_contain": ["数字向量", "512", "维度"],
+      "type": "概念解释"
+    },
+    {
+      "id": "Q11",
+      "question": "为什么资料和用户问题不能使用两个不同的 embedding 模型？",
+      "expected_sections": ["4. Embedding 与相似度"],
+      "reference_answer": "不同模型会把文本映射到不同的向量空间，跨空间计算相似度没有可靠意义。",
+      "must_contain": ["不同向量空间", "相似度"],
+      "type": "原因分析"
+    },
+    {
+      "id": "Q12",
+      "question": "检索返回的相似度分数能不能理解成答案正确率？",
+      "expected_sections": ["4. Embedding 与相似度"],
+      "reference_answer": "不能。分数只表示向量在模型空间中的接近程度，不是答案正确概率，也不能直接理解为百分比。",
+      "must_contain": ["接近程度", "概率"],
+      "type": "误区辨析"
+    },
+    {
+      "id": "Q13",
+      "question": "FAISS 和完整向量数据库有什么区别？",
+      "expected_sections": ["5. FAISS 与索引"],
+      "reference_answer": "FAISS 主要负责向量相似度检索；完整数据库还要负责文档存储、元数据、权限、版本和运维管理。",
+      "must_contain": ["检索", "权限", "元数据"],
+      "type": "对比辨析"
+    },
+    {
+      "id": "Q14",
+      "question": "FAISS 只返回一个整数编号时，系统怎样找到原始文字？",
+      "expected_sections": ["5. FAISS 与索引"],
+      "reference_answer": "利用编号回到元数据列表中取对应块，索引加入顺序和元数据列表顺序一一对应。",
+      "must_contain": ["编号", "元数据", "对应"],
+      "type": "流程"
+    },
+    {
+      "id": "Q15",
+      "question": "top-k 设得较小为什么会漏掉本应回答问题的资料？",
+      "expected_sections": ["6. 检索策略与 top-k"],
+      "reference_answer": "top-k 是硬截断；如果正确资料排在 k 名之后，就不会被交给生成模型。",
+      "must_contain": ["硬截断", "k 名之后"],
+      "type": "原因分析"
+    },
+    {
+      "id": "Q16",
+      "question": "用户问“学习率”但资料只写“lr”时，体现了什么问题，可以怎样改善？",
+      "expected_sections": ["6. 检索策略与 top-k"],
+      "reference_answer": "这是词表鸿沟；可以通过查询改写补充同义表达、混合检索或更合适的 embedding 模型改善。",
+      "must_contain": ["词表鸿沟", "查询改写"],
+      "type": "场景应用"
+    },
+    {
+      "id": "Q17",
+      "question": "BM25、向量检索和 reranker 各自适合解决什么问题？",
+      "expected_sections": ["6. 检索策略与 top-k"],
+      "reference_answer": "BM25 擅长精确关键词匹配，向量检索擅长语义相似，reranker 对召回候选做更精细的相关性重排。",
+      "must_contain": ["关键词", "语义", "重排"],
+      "type": "对比辨析"
+    },
+    {
+      "id": "Q18",
+      "question": "RAG 提示词至少应约束生成模型哪些行为？",
+      "expected_sections": ["7. Prompt 与生成"],
+      "reference_answer": "只使用给定资料、不得编造、资料不足时明确拒绝回答，并标注来源或引用证据。",
+      "must_contain": ["只使用", "不要编造", "来源"],
+      "type": "实践规范"
+    },
+    {
+      "id": "Q19",
+      "question": "检索已经找到了正确资料，为什么最终回答仍可能出错？",
+      "expected_sections": ["7. Prompt 与生成"],
+      "reference_answer": "生成模型可能忽略资料、误读内容、混入旧知识或补写不存在的细节；检索正确不等于生成忠实正确。",
+      "must_contain": ["忽略", "误读", "补写"],
+      "type": "原因分析"
+    },
+    {
+      "id": "Q20",
+      "question": "怎样避免测试题本身进入知识库造成虚高命中率？",
+      "expected_sections": ["8. 评估与数据质量"],
+      "reference_answer": "把正式知识、个人笔记和评测题目分开存放；测试问题使用改写问法，并检查知识库中不存在原题或标准答案。",
+      "must_contain": ["评测题目", "改写", "知识库"],
+      "type": "评测设计"
+    }
+  ]
+}
